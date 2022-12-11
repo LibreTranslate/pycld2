@@ -16,10 +16,9 @@
 #
 
 import io
-import re
 from os import path
 import platform
-
+import re
 import setuptools
 
 # See internal/compile_libs.sh for some detail.  Note that this is *not*
@@ -65,6 +64,12 @@ if platform.system() == "Windows":
 else:
     extra_compile_args = ["-w", "-O2", "-fPIC"]
 
+compile_args = ["-w", "-O2", "-fPIC"]
+if platform.machine() == 'x86_64':
+    compile_args.append('-m64')
+elif platform.machine() == 'aarch64' or platform.machine() == 'arm64':
+    compile_args.append('-march=armv8-a')
+
 module = setuptools.Extension(
     # First arg (name) is the full name of the extension, including
     # any packages - ie. not a filename or pathname, but Python dotted
@@ -73,7 +78,8 @@ module = setuptools.Extension(
     sources=src_files,
     include_dirs=include_dirs,
     language="c++",
-    extra_compile_args=extra_compile_args,
+    # TODO: -m64 may break 32 bit builds
+    extra_compile_args=compile_args,
 )
 
 # We define version as PYCLD2_VERSION in the C++ module.
@@ -88,7 +94,7 @@ with io.open("README.md", encoding="utf-8") as fr:
 
 if __name__ == "__main__":
     setuptools.setup(
-        name="pycld2",
+        name="LTpycld2",
         version=VERSION,
         author="Rami Al-Rfou",
         author_email="rmyeid@gmail.com",
@@ -98,7 +104,7 @@ if __name__ == "__main__":
         long_description=long_description,
         long_description_content_type="text/markdown",
         license="Apache2",
-        url="https://github.com/aboSamoor/pycld2",
+        url="https://github.com/LibreTranslate/pycld2",
         classifiers=[
             "License :: OSI Approved :: Apache Software License",
             "Operating System :: MacOS :: MacOS X",
